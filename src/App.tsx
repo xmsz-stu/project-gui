@@ -7,6 +7,7 @@ import {
   store,
   updateDuplicatePackageInDependencyTree,
   updatePackageAllFromPackageJson,
+  updatePackageJsonList,
   updateRecommendUseCatalogs,
 } from './store';
 import { useStore } from '@tanstack/react-store';
@@ -147,60 +148,9 @@ function App() {
   }, []);
 
   // STEP: 所有子目录下的package.json
-  const [packageJsonList, setPackageJsonList] = useState<
-    Array<{
-      path: string;
-      name: string;
-      content: {
-        dependencies: Record<string, string>;
-        devDependencies?: Record<string, string>;
-      };
-    }>
-  >([]);
+  const packageJsonList = useStore(store, (state) => state.packageJsonList);
   useEffect(() => {
-    ReadPnpmWorkSpace({ projectPath })
-      .then((workspace) => {
-        // 获取所有工作区目录
-        const workspaceDirs = workspace.packages.map(
-          (pkg: string) => pkg.replace('*', '') // 处理 'packages/*' 这样的模式
-        ) as string[];
-
-        // 对每个工作区目录进行查找
-        return Promise.all(
-          workspaceDirs.map(async (dir) => {
-            const fullPath = `${projectPath}/${dir}`;
-            // 只读取直接子目录
-            const subDirs = await readDir(fullPath);
-            return Promise.all(
-              subDirs.map(async (file) => {
-                const packageJsonPath = `${fullPath}${file.name}/package.json`;
-                try {
-                  const content = JSON.parse(
-                    new TextDecoder().decode(await readFile(packageJsonPath))
-                  );
-
-                  return {
-                    path: packageJsonPath,
-                    name: content.name,
-                    content,
-                  };
-                } catch (error) {
-                  // 如果文件不存在或读取失败，返回 null
-                  return null;
-                }
-              })
-            );
-          })
-        )
-          .then((results) => results.flat().filter(Boolean))
-          .then((res) => {
-            setPackageJsonList(res as Array<NonNullable<(typeof res)[number]>>);
-          });
-      })
-      .catch((error) => {
-        console.error('Error reading workspace config:', error);
-        return [];
-      });
+    updatePackageJsonList({ projectPath });
   }, [projectPath]);
 
   // STEP: 项目中依赖已经对应项目

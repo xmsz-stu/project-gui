@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { store } from '../store';
+import { store, updatePackageJsonList } from '../store';
 import { Command } from '@tauri-apps/plugin-shell';
 import ReadPnpmWorkSpace, {
   writePnpmWorkSpace,
@@ -70,6 +70,7 @@ export default function UpdateToCatalogs() {
       console.log(res, res.stdout, args);
 
       // STEP: 更新推荐使用的
+      await updatePackageJsonList({ projectPath });
     },
     onError: console.error,
   });
