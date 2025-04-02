@@ -63,7 +63,7 @@ export default function UpdateToCatalogs() {
         store.state.projectPath,
         ...packageList.flatMap((name) => ['--filter', name]),
         'add',
-        'lint-staged@catalog:',
+        `${packageName}@catalog:`,
         '-D',
       ];
       const res = await executeCommand('pnpm', args);
