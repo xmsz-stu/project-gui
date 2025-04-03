@@ -23,7 +23,7 @@ const Section = ({
         {hasDone || !num ? (
           ''
         ) : (
-          <span className=' w-5 h-5 rounded-full bg-gray-100 text-gray-700 font-semibold block ml-2 text-xs text-center leading-5'>
+          <span className=' min-w-5 px-2 h-5 rounded-full bg-gray-100 text-gray-700 font-semibold block ml-2 text-xs text-center leading-5'>
             {list?.length || num}
           </span>
         )}

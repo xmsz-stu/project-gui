@@ -14,3 +14,7 @@ This template should help get you started developing with Tauri, React and Types
 [ ] 支持检查 catalog 的更新
 [ ] 先用 taze 更新依赖
 [ ] 检查是不是搞错 dev 和 dep
+[ ] 依赖不从 packageJson 拿？从 pnpm-lock 的 imports?
+[ ] 看如何和要不要解决重复版本的问题，比如 1.0.0 和 1.0.0@xxx@1.0.1
+[ ] 支持去除指令比如 simple-git-hooks
+[ ] 还要检查 snapshots 也有重复依赖
