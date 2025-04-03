@@ -6,6 +6,11 @@ import ReadPnpmWorkSpace, {
   writePnpmWorkSpace,
 } from '../libs/read-pnpm-workspace';
 import { useStore } from '@tanstack/react-store';
+import { message } from '@tauri-apps/plugin-dialog';
+import { Button } from './ui/button';
+import { Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import Section from './section';
 
 const executeCommand = async (cmd: string, args: string[]) => {
   const command = await Command.create(cmd, args);
@@ -36,14 +41,13 @@ const executeCommand = async (cmd: string, args: string[]) => {
 };
 
 export default function UpdateToCatalogs() {
-  const [packageName, setPackageName] = useState('');
   const recommendUseCatalogs = useStore(
     store,
     (state) => state.recommendUseCatalogs
   );
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async () => {
+  const { mutateAsync, isPending, variables } = useMutation({
+    mutationFn: async ({ packageName }: { packageName: string }) => {
       const { projectPath } = store.state;
       const { versions } = store.state.packageAllFromPackageJson[packageName];
       const firstKey = Object.keys(versions)[0];
@@ -73,11 +77,52 @@ export default function UpdateToCatalogs() {
       await updatePackageJsonList({ projectPath });
     },
     onError: console.error,
+    onSuccess(_, variables) {
+      toast.success(`更新成功: ${variables.packageName}`);
+    },
   });
 
   return (
-    <div>
-      <select
+    <Section
+      title={'推荐使用catalogs'}
+      num={recommendUseCatalogs.length}
+      hasDone={!recommendUseCatalogs.length}
+    >
+      {!!recommendUseCatalogs.length && (
+        <div className='max-h-100 overflow-auto bg-gray-100 p-4 rounded-xl mt-1'>
+          {recommendUseCatalogs.map((i) => (
+            <article key={i} className='flex items-center justify-between py-1'>
+              <span
+                onClick={() => {
+                  message(
+                    Object.values(
+                      store.state.packageAllFromPackageJson[i].versions
+                    ).join('\n'),
+                    {
+                      title: i,
+                      kind: 'info',
+                    }
+                  );
+                }}
+              >
+                {i}
+              </span>
+              <Button
+                disabled={isPending}
+                onClick={() => {
+                  mutateAsync({ packageName: i });
+                }}
+                variant='outline'
+              >
+                {isPending && variables.packageName === i && (
+                  <Loader2 className=' animate-spin' />
+                )}
+                使用{i}
+                {isPending && variables.packageName === i ? '中' : ''}
+              </Button>
+            </article>
+          ))}
+          {/* <select
         name='选择器名称'
         value={packageName}
         onChange={(e) => {
@@ -88,15 +133,9 @@ export default function UpdateToCatalogs() {
           return <option value={i}>{i}</option>;
         })}
       </select>
-      <button
-        disabled={isPending}
-        onClick={() => {
-          mutateAsync(undefined);
-        }}
-      >
-        升级{packageName}
-        {isPending ? '中' : ''}
-      </button>
-    </div>
+    */}
+        </div>
+      )}
+    </Section>
   );
 }

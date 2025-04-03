@@ -11,48 +11,7 @@ import {
   updateRecommendUseCatalogs,
 } from './store';
 import { useStore } from '@tanstack/react-store';
-import ReadPnpmWorkSpace from './libs/read-pnpm-workspace';
-
-const Section = ({
-  title,
-  children,
-  list,
-  object,
-}: {
-  title: ReactNode;
-  children?: ReactNode;
-  list?: any[];
-  object?: object;
-}) => {
-  const hasDone = list !== undefined && list?.length === 0;
-  return (
-    <section className='border-b border-gray-200 p-2'>
-      <b className='block'>
-        {list ? (
-          <>
-            {hasDone && '✅'}
-            {title}
-            {hasDone ? '' : `(${list.length})`}
-          </>
-        ) : (
-          title
-        )}
-      </b>
-      {!hasDone && (
-        <details>
-          <pre className='max-h-100 overflow-auto bg-gray-50'>
-            {list ? (
-              JSON.stringify(list, null, 2)
-            ) : (
-              <>{object ? JSON.stringify(object, null, 2) : null}</>
-            )}
-          </pre>
-        </details>
-      )}
-      {children}
-    </section>
-  );
-};
+import Section from './components/section';
 
 function App() {
   const projectPath = useStore(store, (state) => state.projectPath);
@@ -175,21 +134,15 @@ function App() {
     updateRecommendUseCatalogs({ packageAllFromPackageJson });
   }, [packageAllFromPackageJson]);
 
-  const recommendUseCatalogs = useStore(
-    store,
-    (state) => state.recommendUseCatalogs
-  );
-
   return (
     <div>
       项目地址：{projectPath}
       <Section
         list={duplicatePackageInDependencyTree}
+        hasDone={!duplicatePackageInDependencyTree.length}
         title={'依赖树里重复的'}
       />
-      <Section title={'推荐使用catalogs'} list={recommendUseCatalogs}>
-        <UpdateToCatalogs />
-      </Section>
+      <UpdateToCatalogs />
       <Section title={'依赖信息树'} object={packageAllFromPackageJson} />
       {/* 配置内容:
       <pre className='h-100 overflow-auto'>

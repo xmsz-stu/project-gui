@@ -4,6 +4,7 @@ import App from './App';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import { Toaster } from 'sonner';
 
 const persister = createSyncStoragePersister({
   storage: window.localStorage,
@@ -18,6 +19,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       persistOptions={{ persister }}
     >
       <App />
+      <Toaster richColors />
     </PersistQueryClientProvider>
   </React.StrictMode>
 );
